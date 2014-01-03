@@ -1,0 +1,51 @@
+hosts:
+  -
+    vms: 4
+    # ssh:
+    #   username: travis
+    #   host: localhost
+  # -
+  #   vms: 5
+  #   ssh:
+  #     username: travis
+  #     host: 192.241.170.100
+
+receiver:
+  builds: amqp
+  commands: amqp
+runner: docker
+reporter:
+  log:
+    - amqp
+    - log
+  state:
+    - amqp
+    - log
+
+logs:
+  buffer: 0.25
+  # chunk_size: 9216
+  chunk_size: 125
+
+limits:
+  timeout: 2700
+  # timeout: 1
+  log_silence: 600
+  # log_silence: 1
+  log_length: 4194304
+  # log_length: 20
+
+cleanup:
+  interval: 5
+
+amqp:
+  host: 'localhost'
+  port: 5672
+  thread_pool_size: 20
+  # username: 'travis'
+  # password: 'travis'
+  # vhost: '/travis'
+  builds_queue: 'builds'
+  commands_queue: 'worker.commands'
+  state_routing_key: 'reporting.jobs.builds'
+  logs_routing_key: 'reporting.jobs.logs'

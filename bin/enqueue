@@ -1,0 +1,29 @@
+#!/bin/bash
+
+id=${1:-1}
+
+payload='{
+  "type": "test",
+  "config": {
+    ".result": "success"
+  },
+  "repository": {
+    "slug": "travis-ci/travis-core",
+    "source_url": "git://github.com/travis-ci/travis-core.git"
+  },
+  "source": {
+    "id": 1,
+    "number": 1
+  },
+  "job": {
+    "id": '$id',
+    "number": "1.1",
+    "commit": "ea466d8",
+    "branch": "master",
+    "commit_range": "ea466d8..ea466d8",
+    "os": "linux",
+    "secure_env_enabled": true
+  }
+}'
+
+rabbitmqadmin publish exchange=amq.default routing_key=builds payload="$payload"

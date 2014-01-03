@@ -1,0 +1,8 @@
+#!/bin/bash
+
+id=${1:-1}
+
+payload='{ "type": "cancel_job", "job_id": '$id' }'
+
+rabbitmqadmin publish exchange=worker.commands routing_key= payload="$payload"
+
