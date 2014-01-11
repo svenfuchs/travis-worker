@@ -2,6 +2,16 @@ require 'core_ext/string/strip_lines'
 
 module Travis
   class Worker
+    class RubyLandError < StandardError
+      attr_reader :result
+
+      def initialize(error)
+        @error = error
+        @result = :errored
+        super("#{error.message}\n#{error.backtrace.join("\n")}")
+      end
+    end
+
     class WorkerError < StandardError
       attr_reader :result
     end

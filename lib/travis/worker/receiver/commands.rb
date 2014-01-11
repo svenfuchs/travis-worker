@@ -1,32 +1,30 @@
 require 'core_ext/string/camelize'
-require 'travis/worker/receiver/adapter/amqp'
+require 'travis/worker/receiver/consumer/amqp'
+require 'travis/worker/receiver/consumer/stub'
 
 module Travis
   class Worker
     class Receiver
       class Commands
-        def self.create(num, config)
-          adapter = Adapter.const_get("#{config[:receiver][:commands]}::Commands".camelize)
-          consumer = adapter.new(config[:amqp][:connection], config[:amqp][:commands_queue])
-          new(num, consumer)
+        def self.create(num, config, listeners)
+          consumer = Consumer.const_get("#{config[:receiver][:commands]}::Commands".camelize).new(config)
+          new(num, consumer, listeners)
         end
 
-        attr_reader :num, :consumer, :subscribers
+        attr_initializer :num, :consumer, :listeners
+        attr_reader :command
 
-        def initialize(num, consumer)
-          @num = num
-          @consumer = consumer
-          @subscribers = []
-          puts "[#{num}] Subscribing to: #{consumer.name}"
+        def start
           consumer.subscribe(&method(:receive))
+          # puts "[#{num}] Subscribed."
         end
 
         def receive(payload)
           case @command = payload[:type].to_s
           when 'cancel_job'
-            run @command, job_id: payload[:job_id]
+            notify(@command, payload)
           else
-            raise("Unknown command: #{command.inspect}")
+            raise "Unknown command: #{command.inspect}"
           end
           @command = nil
         end
@@ -36,13 +34,13 @@ module Travis
         end
 
         def busy?
-          !!@command
+          !!command
         end
 
         private
 
-          def run(command, payload)
-            subscribers.each do |subscriber|
+          def notify(command, payload)
+            listeners.each do |subscriber|
               subscriber.send(command, payload) if subscriber.respond_to?(command)
             end
           end

@@ -1,5 +1,7 @@
 # ruby '1.9.3', engine: 'jruby', engine_version: '1.7.9'
 
+source 'https://rubygems.org'
+
 gem 'travis-build', github: 'travis-ci/travis-build'
 
 gem 'march_hare'
@@ -11,4 +13,5 @@ gem 'active_support'
 
 group :test do
   gem 'rspec'
+  gem 'simplecov'
 end

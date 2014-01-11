@@ -1,20 +1,18 @@
+require 'core_ext/class/attr_initializer'
 require 'core_ext/string/strip_lines'
 
 module Travis
   class Worker
     class Limits
-      class Timeout < Struct.new(:reporter, :config)
+      class Timeout
         ERROR_MSG = <<-msg.strip_lines
           Execution expired after %d minutes.
         msg
 
-        def initialize(*)
-          super
-          @started = Time.now
-        end
+        attr_initializer :reporter, :config
 
         def exceeded?
-          @started + config[:timeout] < Time.now
+          reporter.started_at + config[:timeout] <= Time.now
         end
 
         def error_msg

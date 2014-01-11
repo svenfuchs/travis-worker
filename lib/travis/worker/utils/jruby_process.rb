@@ -29,6 +29,10 @@ module Travis
         process.waitFor
       end
 
+      def exit_status
+        process.exitValue
+      end
+
       def pid
         @pid ||= Java::OrgJrubyUtil::ShellLauncher.getPidFromProcess(@process)
       end

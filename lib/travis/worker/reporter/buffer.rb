@@ -5,34 +5,30 @@ module Travis
   class Worker
     class Reporter
       class Buffer
-        attr_reader :config, :buffer, :pos, :part, :callback, :thread, :mtime
+        attr_reader :config, :buffer, :pos, :part, :callback, :thread
 
         def initialize(config, &block)
           @config = config
           @callback = block
-          @buffer = ''
-          @mtime = Time.now
-          @part = -1
-          @pos = 0
+        end
+
+        def async?
+          config[:buffer].to_i > 0
         end
 
         def start
-          @buffer = ''
-          @mtime = Time.now
-          @part = -1
-          @pos = 0
-          @thread = run_periodically(config[:buffer]) { flush } if config[:buffer] > 0
+          reset
+          @thread = run_periodically(config[:buffer]) { flush } if async?
         end
 
         def stop
+          @stopped = true
           thread.kill if thread
           flush
-          callback.call(part + 1, '', true)
         end
 
         def <<(string)
-          @mtime = Time.now
-          buffer << string
+          buffer << string unless @stopped
         end
 
         def flush
@@ -51,9 +47,18 @@ module Travis
           buffer.length
         end
 
-        def chunks(string)
-          Chunkifier.new(string, config[:chunk_size], json: true)
-        end
+        private
+
+          def reset
+            @buffer = ''
+            @part = -1
+            @pos = 0
+            @stopped = false
+          end
+
+          def chunks(string)
+            Chunkifier.new(string, config[:chunk_size] || 9216, json: true)
+          end
       end
     end
   end

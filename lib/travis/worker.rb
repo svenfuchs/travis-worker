@@ -6,23 +6,22 @@ module Travis
     attr_reader :receivers
 
     def initialize(config)
-      trap_signals
-
-      commands = Receiver::Commands.create(0, config)
-      @receivers = [commands]
+      @receivers = []
+      receivers << Receiver::Commands.create(0, config, receivers)
 
       hosts = config.delete(:hosts)
       hosts.each do |host|
         config[:ssh] = host[:ssh]
-        config[:hostname] = config[:ssh] ? config[:ssh][:host] : `hostname`.chomp
+        config[:hostname] ||= config[:ssh] ? config[:ssh][:host] : `hostname`.chomp
 
         1.upto(host[:vms]).map do |num|
           receivers << Receiver::Builds.create(num, config)
-          commands.subscribers << receivers.last
         end
 
         Runner::Docker.cleanup_periodically(config) if config[:runner] == 'docker'
       end
+
+      receivers.each(&:start)
     end
 
     def trap_signals
@@ -52,6 +51,7 @@ if $0 == __FILE__
   Travis::Worker.logger = Logger.new('worker.log')
 
   worker = Travis::Worker.new(config)
+  worker.trap_signals
 
   puts 'Started.'
   sleep

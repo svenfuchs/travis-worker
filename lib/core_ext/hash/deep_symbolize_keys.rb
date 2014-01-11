@@ -11,9 +11,9 @@ class Hash
       end
       result
     }
-  end unless Hash.method_defined?(:deep_symbolize_keys)
+  end
 
   def deep_symbolize_keys!
     replace(deep_symbolize_keys)
-  end unless Hash.method_defined?(:deep_symbolize_keys!)
+  end
 end

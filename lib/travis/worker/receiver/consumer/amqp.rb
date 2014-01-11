@@ -1,5 +1,10 @@
-require 'march_hare'
+begin
+  require 'march_hare'
+rescue LoadError
+end
+
 require 'multi_json'
+require 'core_ext/class/attr_initializer'
 require 'core_ext/hash/deep_symbolize_keys'
 require 'travis/worker/utils/amqp'
 
@@ -8,9 +13,11 @@ MultiJson.engine = :ok_json
 module Travis
   class Worker
     class Receiver
-      module Adapter
+      module Consumer
         class Amqp
-          class Queue < Struct.new(:connection, :name)
+          class Queue
+            attr_initializer :config
+
             def subscribe(&block)
               @callback = block
               @consumer = @queue.subscribe(ack: true, blocking: false, &method(:receive))
@@ -37,16 +44,18 @@ module Travis
           class Builds < Queue
             def initialize(*)
               super
+              config[:amqp] ||= {}
               channel = Worker::Amqp.create_channel(prefetch: 1)
-              @queue = channel.queue(name, durable: true)
+              @queue = channel.queue(config[:amqp][:builds_queue] || 'builds', durable: true)
             end
           end
 
           class Commands < Queue
             def initialize(*)
               super
+              config[:amqp] ||= {}
               channel = Worker::Amqp.create_channel(prefetch: 1)
-              exchange = channel.fanout(name)
+              exchange = channel.fanout(config[:amqp][:commands_queue] || 'worker.commands')
               @queue = channel.queue('') # TODO exclusive: true?
               @queue.bind(exchange)
             end

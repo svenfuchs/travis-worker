@@ -1,20 +1,20 @@
 module Travis
   class Worker
     class Reporter
-      module Adapter
+      module Publisher
         class Memory
           attr_reader :data
 
-          def intialize(*)
+          def initialize(*)
             @data = []
           end
 
           def state(num, event, payload)
-            data << [num, event, payload]
+            data << [event, payload] unless event == 'job:test:boot' # not implemented, but might be interesting
           end
 
-          def log(num, payload)
-            data << [num, :log, payload]
+          def log(num, event, payload)
+            data << [event, payload]
           end
         end
       end

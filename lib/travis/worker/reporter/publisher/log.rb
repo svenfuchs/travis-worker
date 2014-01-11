@@ -1,7 +1,7 @@
 module Travis
   class Worker
     class Reporter
-      module Adapter
+      module Publisher
         class Log
           def initialize(*)
           end
@@ -10,7 +10,7 @@ module Travis
             puts "[worker-#{num}][job-#{payload[:id]}] #{event}: #{payload}"
           end
 
-          def log(num, payload)
+          def log(num, event, payload)
             log = payload[:final] ? '[final]' : payload[:log]
             log.split("\n").each do |line|
               puts "[worker-#{num}][job-#{payload[:id]}][part-#{payload[:number]}] log: #{line}"

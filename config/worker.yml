@@ -1,14 +1,16 @@
 hosts:
   -
-    vms: 4
-    # ssh:
-    #   username: travis
-    #   host: localhost
+    vms: 3
+    ssh:
+      username: travis
+      host: localhost
   # -
   #   vms: 5
   #   ssh:
   #     username: travis
   #     host: 192.241.170.100
+
+command: "echo {0..100}; for i in {0..100}; do printf .; sleep 0.0$[ 1 + $[ RANDOM % 10 ]]; done"
 
 receiver:
   builds: amqp
@@ -24,8 +26,8 @@ reporter:
 
 logs:
   buffer: 0.25
-  # chunk_size: 9216
-  chunk_size: 125
+  chunk_size: 9216
+  # chunk_size: 125
 
 limits:
   timeout: 2700

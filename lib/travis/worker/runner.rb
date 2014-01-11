@@ -1,9 +1,13 @@
-require 'travis/build'
+require 'core_ext/class/attr_initializer'
 require 'core_ext/string/camelize'
 
+require 'travis/worker/command'
 require 'travis/worker/exceptions'
 require 'travis/worker/limits'
 require 'travis/worker/reporter'
+
+require 'travis/worker/runner/config'
+require 'travis/worker/runner/stub'
 require 'travis/worker/runner/docker'
 
 module Travis
@@ -11,80 +15,78 @@ module Travis
     class Runner
       def self.create(num, config)
         reporter = Reporter.create(num, config)
-        limits = Limits.new(reporter, config[:limits])
+        limits = Limits.new(reporter, config[:limits] || {})
         const_name = config[:runner].to_s.camelize
-        const_get(const_name).new(num, config, reporter, limits)
+        command = Command.const_get(const_name).new(config)
+        const_get(const_name).new(num, config, reporter, limits, command)
       end
 
-      attr_reader :num, :config, :limits, :reporter, :payload
-
-      def initialize(num, config, reporter, limits)
-        @num = num
-        @config = config
-        @reporter = reporter
-        @limits = limits
-      end
+      attr_initializer :num, :config, :reporter, :limits, :command
+      attr_reader :payload
 
       def runs_job?(id)
-        !canceled? && payload && payload[:job][:id] == id
+        payload && payload[:job][:id] == id
       end
 
       def run(payload)
-        @payload = payload
-        announce 'Starting'
-        reporter.on_start(payload[:job][:id])
-        check_config
+        self.payload = payload
+        reporter.start(payload[:job][:id])
+        # notice 'Starting'
+        boot
         result = limits.check_periodically { execute }
-      rescue => e
+      rescue => error
+        error = RubyLandError.new(error) unless error.is_a?(WorkerError)
         halt
-        result = e.respond_to?(:result) ? e.result : :errored
-        reporter.on_error(e.message)
+        result = error.result
+        reporter.on_error(error.message)
       ensure
-        result = :canceled if canceled?
-        reporter.on_finish(result)
-        announce 'Finished'
-        @payload = nil
+        finish(result)
       end
 
       def cancel
-        announce 'Cancelling'
         @canceled = true
-        sleep 0.25
         reporter.on_cancel
         halt
+        # notice 'Canceled'
       end
 
-      def busy?
+      def running?
         !!@payload
+      end
+
+      def canceled?
+        !!@canceled
       end
 
       private
 
-        def canceled?
-          !!@canceled
+        def payload=(payload)
+          @payload = payload
+          Config.new(reporter).check(payload)
         end
 
-        def cmd
-          # data = payload.merge(timeouts: false, hosts: config[:hosts], cache_options: config[:cache_options])
-          # Build.script(data, logs: { build: false, state: true }).compile
-          'echo {0..100}; for i in {0..100}; do printf .; sleep 0.0$[ 1 + $[ RANDOM % 10 ]]; done'
-        rescue => e
-          raise CompileError, e
+        def boot
+          reporter.on_boot
         end
 
-        def check_config
-          case payload[:config][:'.result']
-          when 'parse_error'
-            raise ConfigParseError
-          when 'not_found'
-            reporter.on_warning "We were unable to find a .travis.yml file. This may not be what you\nwant. The build will be run with default settings.\n\n"
-          end
+        def execute
+          reporter.on_start
         end
 
-        def announce(msg)
-          puts "[worker-#{num}] #{msg} job: #{payload[:repository][:slug]}, id: #{payload[:job][:id]}"
+        def halt
+        end
+
+        def finish(result)
+          result = :canceled if canceled?
+          reporter.on_finish(result)
+          notice 'Finished'
+          @payload = nil
+          @canceled = nil
+        end
+
+        def notice(msg)
+          # reporter.on_notice "#{msg} job: #{payload[:repository][:slug]}, id: #{payload[:job][:id]}"
         end
     end
   end
 end
-

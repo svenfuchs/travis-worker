@@ -8,6 +8,8 @@ module Travis
         process.start
         process
       end
+
+      extend self
     end
   end
 end
