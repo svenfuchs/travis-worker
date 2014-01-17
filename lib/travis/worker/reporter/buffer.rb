@@ -10,6 +10,7 @@ module Travis
         def initialize(config, &block)
           @config = config
           @callback = block
+          reset
         end
 
         def async?
