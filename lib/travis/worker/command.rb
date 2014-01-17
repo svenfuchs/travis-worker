@@ -57,11 +57,11 @@ module Travis
         end
 
         def ssh_host
-          "#{config[:ssh][:username]}@#{config[:ssh][:host]}"
+          "#{config[:ssh][:user]}@#{config[:ssh][:host]}"
         end
 
         def ssh_opts
-          '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+          '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet'
         end
     end
   end

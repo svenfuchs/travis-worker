@@ -5,7 +5,7 @@ queues:
       -
         vms: 3
         ssh:
-          username: travis
+          user: travis
           host: localhost
 
   # -
