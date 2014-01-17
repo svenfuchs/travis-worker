@@ -25,7 +25,6 @@ module Travis
 
       def on_boot
         publish_state 'job:test:boot', id: job_id, state: 'booted', booted_at: Time.now.utc.to_s
-        log "Using worker: #{config[:hostname]}:#{num}\n"
       end
 
       def on_start

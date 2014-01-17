@@ -29,11 +29,6 @@ describe Travis::Worker::Reporter do
       expect(publishers).to receive(:state).with(0, 'job:test:boot', id: 1, state: 'booted', booted_at: now.utc.to_s)
       reporter.on_boot
     end
-
-    it 'publishes "job:test:log" with a log header for the current worker' do
-      expect(publishers).to receive(:log).with(0, 'job:test:log', id: 1, number: 0, log: "Using worker: :0\n")
-      reporter.on_boot
-    end
   end
 
   describe 'on_start' do

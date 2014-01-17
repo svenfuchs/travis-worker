@@ -29,8 +29,10 @@ module Travis
       end
 
       def run(payload)
-        self.payload = payload
+        @payload = payload
         reporter.start(payload[:job][:id])
+        reporter.log "Using worker: #{config[:hostname]}:#{num}\n"
+        Config.new(reporter).check(payload)
         # notice 'Starting'
         boot
         result = limits.check_periodically { execute }
@@ -59,11 +61,6 @@ module Travis
       end
 
       private
-
-        def payload=(payload)
-          @payload = payload
-          Config.new(reporter).check(payload)
-        end
 
         def boot
           reporter.on_boot
