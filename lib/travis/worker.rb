@@ -9,16 +9,21 @@ module Travis
       @receivers = []
       receivers << Receiver::Commands.create(0, config, receivers)
 
-      hosts = config.delete(:hosts)
-      hosts.each do |host|
-        config[:ssh] = host[:ssh]
-        config[:hostname] ||= config[:ssh] ? config[:ssh][:host] : `hostname`.chomp
+      queues = config.delete(:queues)
+      queues.each do |queue|
+        queue[:hosts].each do |host|
+          config = config.merge(
+            queue: queue[:name],
+            ssh: host[:ssh],
+            hostname: host[:name] || config[:ssh] && config[:ssh] || `hostname`.chomp
+          )
 
-        1.upto(host[:vms]).map do |num|
-          receivers << Receiver::Builds.create(num, config)
+          1.upto(host[:vms]).map do |num|
+            receivers << Receiver::Builds.create(num, config)
+          end
+
+          Runner::Docker.cleanup_periodically(config) if config[:runner] == 'docker'
         end
-
-        Runner::Docker.cleanup_periodically(config) if config[:runner] == 'docker'
       end
 
       receivers.each(&:start)

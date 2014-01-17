@@ -11,7 +11,7 @@ describe 'Running a job in memory', jruby: true do
     {
       hostname: 'hostname',
       command: 'echo "Build output"',
-      hosts: [{ vms: 1 }],
+      queues: [{ name: 'builds', hosts: [{ name: 'hostname', vms: 1 }] }],
       receiver: { builds: :amqp, commands: :amqp },
       runner: :stub,
       reporter: { state: [:amqp, :memory], log: :amqp }

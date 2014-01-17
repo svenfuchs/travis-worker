@@ -10,7 +10,7 @@ describe 'Running a job in memory' do
     {
       hostname: 'hostname',
       command: 'echo "Build output"',
-      hosts: [{ vms: 1 }],
+      queues: [{ name: 'builds', hosts: [{ name: 'hostname', vms: 1 }] }],
       receiver: { builds: :stub, commands: :stub },
       runner: :stub,
       reporter: { state: :memory, log: :memory }

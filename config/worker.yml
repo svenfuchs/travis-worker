@@ -1,9 +1,13 @@
-hosts:
+queues:
   -
-    vms: 3
-    ssh:
-      username: travis
-      host: localhost
+    name: builds.linux
+    hosts:
+      -
+        vms: 3
+        ssh:
+          username: travis
+          host: localhost
+
   # -
   #   vms: 5
   #   ssh:
