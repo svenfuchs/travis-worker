@@ -26,4 +26,4 @@ payload='{
   }
 }'
 
-rabbitmqadmin publish exchange=amq.default routing_key=builds payload="$payload"
+rabbitmqadmin publish exchange=amq.default routing_key="builds" payload="$payload"

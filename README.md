@@ -63,6 +63,12 @@ on Docker, simplicity and extensibility for now.
 
 #### Scenarios
 
+Successful build:
+
+    [worker-1][job-1][part-101] log: .
+    [worker-1][job-1] job:test:finish: {:id=>1, :state=>"passed", :finished_at=>"2014-01-17 21:50:52 UTC"}
+    [worker-1][job-1][part-103] log: [final]
+
 When the global timeout is exceeded:
 
     [worker-1][job-1][part-10] log: Error: Execution expired after 0 minutes.
