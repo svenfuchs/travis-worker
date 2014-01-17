@@ -15,7 +15,7 @@ module Travis
           config = config.merge(
             queue: queue[:name],
             ssh: host[:ssh],
-            hostname: host[:name] || config[:ssh] && config[:ssh] || `hostname`.chomp
+            hostname: host[:name] || host[:ssh] && host[:ssh][:host] || `hostname`.chomp
           )
 
           1.upto(host[:vms]).map do |num|
