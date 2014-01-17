@@ -6,7 +6,7 @@ module Travis
     class Limits
       class LogSilence
         ERROR_MSG = <<-msg.strip_lines
-          No output has been received in the last %d minutes. This indicates a stalled build.
+          No output has been received in the last %d minutes, indicating a stalled build.
         msg
 
         attr_initializer :reporter, :config

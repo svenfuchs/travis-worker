@@ -50,11 +50,18 @@ module Travis
         prefix_ssh "ids=$(sudo docker ps -a -q); [ -z \"$ids\" ] || sudo docker rm $ids"
       end
 
-        private
+      private
 
         def prefix_ssh(cmd)
-          cmd = "ssh #{config[:ssh][:username]}@#{config[:ssh][:host]} #{Shellwords.escape(cmd)}" if config[:ssh]
-          cmd
+          config[:ssh] ? "ssh #{ssh_host} #{ssh_opts} #{Shellwords.escape(cmd)}" : cmd
+        end
+
+        def ssh_host
+          "#{config[:ssh][:username]}@#{config[:ssh][:host]}"
+        end
+
+        def ssh_opts
+          '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
         end
     end
   end
