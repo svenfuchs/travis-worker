@@ -17,8 +17,8 @@ module Travis
             def initialize(routing_key)
               @routing_key = routing_key
               channel = Worker::Amqp.create_channel
-              channel.queue(routing_key, durable: true).bind('reporting', routing_key: routing_key)
               @exchange = channel.exchange('reporting', type: :topic, durable: true)
+              channel.queue(routing_key, durable: true).bind('reporting', routing_key: routing_key)
             end
 
             def publish(event, payload)
