@@ -61,7 +61,7 @@ module Travis
         end
 
         def ssh_opts
-          '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=quiet'
+          '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=error'
         end
     end
   end

@@ -2,18 +2,18 @@ queues:
   -
     name: builds
     hosts:
-      # -
-      #   vms: 5
-      #   ssh:
-      #     user: travis
-      #     host: localhost
       -
         vms: 5
         ssh:
           user: travis
-          host: 192.241.170.100
+          host: localhost
+      # -
+      #   vms: 5
+      #   ssh:
+      #     user: travis
+      #     host: 192.241.170.100
 
-command: "echo {0..100}; for i in {0..100}; do printf .; sleep 0.0$[ 1 + $[ RANDOM % 10 ]]; done"
+command: "echo {0..100}; sleep 2; for i in {0..100}; do printf .; sleep 0.0$[ 1 + $[ RANDOM % 10 ]]; done"
 
 receiver:
   builds: amqp

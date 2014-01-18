@@ -1,2 +1,5 @@
 be able to subscribe to multiple build.* queues, pick
 runner/image accordingly
+
+make sure ssh never tries to auth via password
+

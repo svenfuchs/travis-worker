@@ -74,13 +74,15 @@ When the global timeout is exceeded:
     [worker-1][job-1][part-10] log: Error: Execution expired after 0 minutes.
     [worker-1][job-1][part-10] log: This build has been terminated.
     [worker-1][job-1] job:test:finish: {:id=>1, :state=>"errored", :finished_at=>...}
+    [worker-1][job-1][part-11] log: [final]
 
 When the log silence timeout is exceeded:
 
     [worker-1][job-1][part-1] log: Error: No output has been received in the last 0 minutes.
     [worker-1][job-1][part-1] log: This build has been terminated.
-    [worker-1][job-1][part-3] log: [final]
+    [worker-1][job-1][part-2] log: [final]
     [worker-1][job-1] job:test:finish: {:id=>1, :state=>"errored", :finished_at=>...}
+    [worker-1][job-1][part-3] log: [final]
 
 When the log limit is exceeded:
 
@@ -88,15 +90,18 @@ When the log limit is exceeded:
     [worker-1][job-1][part-7] log: Hint: this often means the same exception was raised over and over.
     [worker-1][job-1][part-8] log: This build has been terminated.
     [worker-1][job-1] job:test:finish: {:id=>1, :state=>"errored", :finished_at=>...}
+    [worker-1][job-1][part-9] log: [final]
 
 When the ssh remote host is not reachable:
 
     [worker-1][job-1][part-0] log: Error: ssh: connect to host localhost port 22: Connection refused
     [worker-1][job-1][part-1] log: This build will be restarted.
     [worker-1][job-1] job:test:reset: {:id=>1, :state=>"reset", :finished_at=>...}
+    [worker-1][job-1][part-2] log: [final]
 
 When Docker is down:
 
     [worker-1][job-1][part-1] log: Error: Can't connect to docker daemon. Is 'docker -d' running on this host?
     [worker-1][job-1][part-2] log: This build will be restarted.
     [worker-1][job-1] job:test:reset: {:id=>1, :state=>"reset", :finished_at=>...}
+    [worker-1][job-1][part-3] log: [final]
