@@ -8,10 +8,6 @@ on Docker, simplicity and extensibility for now.
   pretty modular so other receivers can be added (e.g. pulling jobs via HTTP
   while keeping commands on AMQP).
 
-* Can run receivers for multiple queues, each tied to an array of "hosts"
-  where it ssh'es into to run a Docker container (of course there could be
-  other adapters).
-
 * Simply runs `docker run [cmd]` via `java.lang.UNIXProcess` and reads
   `stdout/stderr`.
 
@@ -23,6 +19,10 @@ on Docker, simplicity and extensibility for now.
 
   * It also allows to specify multiple Docker "hosts" in the configuration, each
     of which will run a particular, fixed number of VMs (containers).
+
+* Can run receivers for multiple queues, each tied to an array of "hosts"
+  where it shells out to in order to run a Docker container, either locally or
+  via ssh (of course there could be other adapters).
 
 * Can use any number of pluggable reporter adapters (e.g. AMQP alongside
   with a logger, or memory for testing), but at this point they'll all just
